@@ -24,10 +24,6 @@ type RabbitClient struct {
 }
 
 func NewRabbitClient(url string, queueName string, cfg *tls.Config, callBack func([]byte)) *RabbitClient {
-	if url == "" {
-		url = "amqp://admin:P8g4h6NDaSTVc84UY3zrBCUug@rbq-staging.quickom.com:5672"
-	}
-
 	// ctx, cancel := context.WithCancel(context.Background())
 	return &RabbitClient{
 		queueName: queueName,
@@ -138,6 +134,10 @@ func (b *RabbitClient) reconnect() error {
 }
 
 func (b *RabbitClient) Start() error {
+	if b.url == "" {
+		return fmt.Errorf("AMQP url is nil")
+	}
+
 	err := b.reconnect()
 	if err != nil {
 		return err
@@ -202,12 +202,12 @@ func (b *RabbitClient) initConsume(conn *amqp.Connection) error {
 		}
 	}()
 
-	body := "hello listener"
-	ch.Publish("", b.queueName, false, false, amqp.Publishing{
-		DeliveryMode: amqp.Persistent,
-		ContentType:  "text/plain",
-		Body:         []byte(body),
-	})
+	// body := "hello listener"
+	// ch.Publish("", b.queueName, false, false, amqp.Publishing{
+	// 	DeliveryMode: amqp.Persistent,
+	// 	ContentType:  "text/plain",
+	// 	Body:         []byte(body),
+	// })
 
 	return nil
 }
